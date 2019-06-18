@@ -1,7 +1,7 @@
 import os
 from time import sleep
 
-# import pandas as pd
+import pandas as pd
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -82,9 +82,10 @@ def download_transaction_history():
     driver.close()
 
     downloaded_file = os.path.join(download_path, os.listdir(download_path)[0])
-    # df = pd.read_csv(downloaded_file)
+    df = pd.read_csv(downloaded_file)
 
-    # return df
+    return df
 
 if __name__ == "__main__":
-    download_transaction_history()
+    df = download_transaction_history()
+    print(df)
