@@ -1,0 +1,10 @@
+pandas
+python-dotenv
+flask
+flask-sqlalchemy
+flask-login
+flask-migrate
+dash
+dash-core-components
+dash-html-components
+dash-table

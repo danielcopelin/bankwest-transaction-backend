@@ -1,5 +1,7 @@
 chromedriver.exe
 .env
+data/
+downloads/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
