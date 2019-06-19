@@ -38,14 +38,30 @@ df = pd.read_sql(transactions.statement, transactions.session.bind)
 df = df.iloc[:10]
 
 
-def changed_data(old_data, data):
+def update_changed_data(old_data, data):
     old = pd.DataFrame.from_records(old_data)
     new = pd.DataFrame.from_records(data)
 
     ne_stacked = (old != new).stack()
-    changed = new.stack()[ne_stacked]
 
-    return f"{changed}"
+    changed = new.stack()[ne_stacked]
+    idx = changed.index.get_level_values(0)[0]
+    column = changed.index.get_level_values(1)[0]
+    id = old.loc[idx, 'id']
+    value = changed[0]
+    # print(idx, column, id, value)
+
+    try:
+        transaction = Transaction.query.get(id)
+        setattr(transaction, column, value)
+        db.session.flush() 
+    except IntegrityError as e:
+        print(e)
+        db.session.rollback()
+    else:
+        db.session.commit()
+
+    return f"{id}, {column}, {value}"
 
 
 def gen_conditionals_from_csv(src, category_column, sub_category_column):
@@ -113,8 +129,8 @@ app.layout = html.Div(
                 },
             ],
             editable=True,
-            # sorting=True,
-            # filtering=True,
+            sorting=True,
+            filtering=True,
             column_static_dropdown=[conditional_dict],
             column_conditional_dropdowns=[sub_conditional_dict],
         ),
@@ -129,7 +145,11 @@ app.layout = html.Div(
 )
 def update_database(old_table_data, table_data):
     if old_table_data is not None:
-        return html.P(changed_data(old_table_data, table_data))
+        return update_changed_data(old_table_data, table_data)
+        # transactions = db.session.query(Transaction)
+        # df = pd.read_sql(transactions.statement, transactions.session.bind)
+        # df = df.iloc[:10]
+        # return df.to_dict("rows")
 
 
 if __name__ == "__main__":
