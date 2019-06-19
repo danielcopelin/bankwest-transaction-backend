@@ -50,7 +50,7 @@
             "request": "launch",
             "module": "flask",
             "env": {
-                "FLASK_APP": "app.py"
+                "FLASK_APP": "working\\dash_table_example.py"
             },
             "args": [
                 "run",
