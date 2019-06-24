@@ -56,14 +56,24 @@ def download_transaction_history():
     "download.directory_upgrade": True,
     "safebrowsing.enabled": True
     })
+    options.add_argument("--headless")
+    options.add_argument("--allow-scripts")
+    options.add_argument("--no-sandbox")
+
+    WINDOW_SIZE = "1200,900" 
+    options.add_argument("--window-size=%s" % WINDOW_SIZE) 
 
     user = os.getenv("PAN")
     pwd = os.getenv("SECURE_CODE")
     driver = webdriver.Chrome(options=options)
+    
+    driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+    params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': download_path}}
+    command_result = driver.execute("send_command", params)
+
     driver.get("https://ibs.bankwest.com.au/BWLogin/bib.aspx")
 
     elem = driver.find_element_by_id("AuthUC_txtUserID")
-
     elem.send_keys(user)
     elem = driver.find_element_by_id("AuthUC_txtData")
     elem.send_keys(pwd)
@@ -78,11 +88,15 @@ def download_transaction_history():
     s1.select_by_visible_text('Last 7 Days')
 
     driver.execute_script('javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions("_ctl0:ContentButtonsLeft:btnExport", "", true, "", "", false, true))')
+    driver.save_screenshot('./download.png')
     download_wait(download_path, 20, nfiles=1)
     driver.close()
 
     downloaded_file = os.path.join(download_path, os.listdir(download_path)[0])
     df = pd.read_csv(downloaded_file)
+
+    for f in os.listdir(download_path):
+        os.remove(os.path.join(download_path, f))
 
     return df
 

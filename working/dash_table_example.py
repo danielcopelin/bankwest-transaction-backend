@@ -35,7 +35,7 @@ class Transaction(db.Model):
 
 transactions = db.session.query(Transaction)
 df = pd.read_sql(transactions.statement, transactions.session.bind)
-df = df.iloc[:10]
+df = df.iloc[:50]
 
 
 def update_changed_data(old_data, data):
