@@ -1,2 +1,2 @@
 heroku ps:scale web=1
-web: flask db upgrade; flask translate compile; gunicorn dashapp:server
+web: flask db upgrade; gunicorn dashapp:server
